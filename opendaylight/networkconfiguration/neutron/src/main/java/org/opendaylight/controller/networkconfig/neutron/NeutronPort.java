@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 
@@ -56,9 +55,8 @@ public class NeutronPort {
     @XmlElement (name="tenant_id")
     String tenantID;
 
-    // TODO: add security groups
-    //        @XmlElement (name="security_groups")
-    //        List<String> securityGroups;
+    @XmlElement (name="security_groups")
+    List<String> securityGroups;
 
     /* this attribute stores the floating IP address assigned to
      * each fixed IP address
@@ -155,6 +153,14 @@ public class NeutronPort {
 
     public void setTenantID(String tenantID) {
         this.tenantID = tenantID;
+    }
+
+    public List<String> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(List<String> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     public NeutronFloatingIP getFloatingIP(String key) {
