@@ -89,6 +89,7 @@
     <!--  Neutron -->
     <module>opendaylight/networkconfiguration/neutron</module>
     <module>opendaylight/networkconfiguration/neutron/implementation</module>
+    <module>opendaylight/networkconfiguration/neutron/midonet</module>
     <module>opendaylight/northbound/networkconfiguration/neutron</module>
 
     <!-- Northbound bundles -->
