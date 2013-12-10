@@ -767,7 +767,8 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
-      <artifactId>networkconfig.neutron.implementation</artifactId>
+      <!-- artifactId>networkconfig.neutron.implementation</artifactId -->
+      <artifactId>networkconfig.neutron.midonet</artifactId>
       <version>${controller.version}</version>
     </dependency>
     <dependency>
