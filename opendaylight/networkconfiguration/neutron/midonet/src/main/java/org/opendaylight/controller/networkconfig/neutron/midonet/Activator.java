@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
-import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
 import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 
 public class Activator extends ComponentActivatorAbstractBase {
@@ -49,7 +48,7 @@ public class Activator extends ComponentActivatorAbstractBase {
      * Object
      */
     public Object[] getImplementations() {
-        Object[] res = { NeutronNetworkInterface.class };
+        Object[] res = { MidonetNetworkHandler.class };
         return res;
     }
 
@@ -66,12 +65,13 @@ public class Activator extends ComponentActivatorAbstractBase {
      * also optional per-container different behavior if needed, usually
      * should not be the case though.
      */
-    public void configureInstance(Component c, Object imp, String containerName) {
-        if (imp.equals(NeutronNetworkInterface.class)) {
+    public void configureInstance(Component c,
+                                  Object imp,
+                                  String containerName) {
+        if (imp.equals(MidonetNetworkHandler.class)) {
             // export the service
-            c.setInterface(new String[] {
-                    INeutronNetworkCRUD.class.getName(),
-                    INeutronNetworkAware.class.getName()}, null);
+            c.setInterface(
+                    new String[] { INeutronNetworkAware.class.getName()}, null);
         }
     }
 }
