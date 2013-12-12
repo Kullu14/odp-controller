@@ -8,6 +8,8 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet;
 
+import java.util.UUID;
+
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
 import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
     public int canCreateNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canCreateNetwork: " +
                      network.getID());
+        network.setNetworkUUID(UUID.randomUUID().toString());
         return 200;
     }
 
