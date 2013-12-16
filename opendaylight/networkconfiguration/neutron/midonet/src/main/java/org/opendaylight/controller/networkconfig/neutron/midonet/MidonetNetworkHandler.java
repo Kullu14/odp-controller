@@ -8,21 +8,32 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet;
 
-import java.util.UUID;
-
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
 import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
+import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
+import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
+import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data.Bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MidonetNetworkHandler implements INeutronNetworkAware {
     private static final Logger logger = LoggerFactory.getLogger(MidonetNetworkHandler.class);
 
+    BridgeDataClient dataClient;
+
     @Override
     public int canCreateNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canCreateNetwork: " +
                      network.getID());
-        network.setNetworkUUID(UUID.randomUUID().toString());
+        Bridge bridge = null;
+        try {
+            dataClient.bridgesCreate(bridge);
+        } catch (StateAccessException e) {
+            logger.error("Failed to create a network.");
+            return 500;
+        }
+
+        network.setNetworkUUID(bridge.getNetworkUUID().toString());
         return 200;
     }
 

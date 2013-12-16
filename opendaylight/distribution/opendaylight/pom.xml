@@ -710,6 +710,21 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
+      <artifactId>networkconfig.neutron.midonet.cluster</artifactId>
+      <version>${controller.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>networkconfig.neutron.midonet.cluster.local</artifactId>
+      <version>${controller.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>networkconfig.neutron.midonet.cluster.local.data</artifactId>
+      <version>${controller.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
       <artifactId>networkconfig.neutron.northbound</artifactId>
       <version>${controller.version}</version>
     </dependency>
