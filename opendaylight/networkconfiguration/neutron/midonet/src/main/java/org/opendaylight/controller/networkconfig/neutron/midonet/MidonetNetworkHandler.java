@@ -29,7 +29,7 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
         try {
             dataClient.bridgesCreate(bridge);
         } catch (StateAccessException e) {
-            logger.error("Failed ot create a network.");
+            logger.error("Failed to create a network.");
             return 500;
         }
 
