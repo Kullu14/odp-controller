@@ -5,7 +5,7 @@
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>commons.opendaylight</artifactId>
     <version>1.4.1-SNAPSHOT</version>
-    <relativePath>../../../commons/opendaylight</relativePath>
+    <relativePath>../../../../commons/opendaylight</relativePath>
   </parent>
   <properties>
     <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
@@ -36,7 +36,7 @@
     </site>
   </distributionManagement>
   <groupId>org.opendaylight.controller</groupId>
-  <artifactId>networkconfig.neutron.midonet</artifactId>
+  <artifactId>networkconfig.neutron.midonet.cluster</artifactId>
   <version>0.4.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <build>
@@ -49,21 +49,15 @@
         <configuration>
           <instructions>
             <Import-Package>
-              org.apache.commons.net.util,
               org.apache.felix.dm,
-              org.opendaylight.controller.clustering.services,
-              org.opendaylight.controller.networkconfig.neutron,
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data,
-              org.opendaylight.controller.sal.core,
-              org.opendaylight.controller.sal.utils,
+              org.apache.commons.net.util,
               org.osgi.service.component,
               org.slf4j,
-              javax.xml.bind.annotation
             </Import-Package>
-            <Bundle-Activator>
-              org.opendaylight.controller.networkconfig.neutron.midonet.Activator
-            </Bundle-Activator>
+            <Export-Package>
+              org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
+              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data
+            </Export-Package>
           </instructions>
           <manifestLocation>${project.basedir}/src/main/resources/META-INF</manifestLocation>
         </configuration>
@@ -72,18 +66,8 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-        <artifactId>networkconfig.neutron.midonet.cluster</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>networkconfig.neutron</artifactId>
-      <version>0.4.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
