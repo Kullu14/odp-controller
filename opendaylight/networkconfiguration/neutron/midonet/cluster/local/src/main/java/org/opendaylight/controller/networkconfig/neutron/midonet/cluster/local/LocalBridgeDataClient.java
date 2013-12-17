@@ -1,7 +1,7 @@
 /*
- * Copyright 2012 Midokura Europe SARL
- * Copyright 2013 Midokura Pte Ltd
+ * Copyright (c) 2013 Midokura Europe SARL, All Rights Reserved.
  */
+
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
 import java.util.UUID;
