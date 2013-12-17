@@ -1,4 +1,6 @@
-// Copyright 2011 Midokura Inc.
+/*
+ * Copyright (c) 2013 Midokura Europe SARL, All Rights Reserved.
+ */
 
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster;
 
