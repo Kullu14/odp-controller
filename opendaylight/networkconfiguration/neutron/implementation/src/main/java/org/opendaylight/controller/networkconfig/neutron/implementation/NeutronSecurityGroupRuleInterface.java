@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public class NeutronSecurityGroupRuleInterface
         extends AbstractNeutronInterface<NeutronSecurityGroupRule>
         implements INeutronSecurityGroupRuleCRUD {
-    protected static final Logger logger = LoggerFactory.getLogger(NeutronSecurityGroupInterface.class);
+    protected static final Logger logger = LoggerFactory.getLogger(NeutronSecurityGroupRuleInterface.class);
 
     @Override
     protected String getCacheName() {

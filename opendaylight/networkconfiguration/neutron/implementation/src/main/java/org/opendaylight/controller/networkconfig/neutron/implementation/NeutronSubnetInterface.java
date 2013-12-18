@@ -8,7 +8,11 @@
 
 package org.opendaylight.controller.networkconfig.neutron.implementation;
 
-import org.opendaylight.controller.networkconfig.neutron.*;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSubnetCRUD;
+import org.opendaylight.controller.networkconfig.neutron.NeutronCRUDInterfaces;
+import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSubnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

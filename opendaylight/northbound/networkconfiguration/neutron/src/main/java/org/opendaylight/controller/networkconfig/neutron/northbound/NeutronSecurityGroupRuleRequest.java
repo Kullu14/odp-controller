@@ -1,6 +1,5 @@
 package org.opendaylight.controller.networkconfig.neutron.northbound;
 
-import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroup;
 import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule;
 
 import javax.xml.bind.annotation.XmlElement;

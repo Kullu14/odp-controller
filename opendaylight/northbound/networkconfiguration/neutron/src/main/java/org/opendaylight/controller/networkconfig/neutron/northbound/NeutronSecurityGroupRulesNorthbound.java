@@ -8,18 +8,35 @@
 
 package org.opendaylight.controller.networkconfig.neutron.northbound;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.opendaylight.controller.networkconfig.neutron.*;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupAware;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupRuleCRUD;
+import org.opendaylight.controller.networkconfig.neutron.NeutronCRUDInterfaces;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroup;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Direction;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Ethertype;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Protocol;
 import org.opendaylight.controller.northbound.commons.RestMessages;
 import org.opendaylight.controller.northbound.commons.exception.ServiceUnavailableException;
 import org.opendaylight.controller.sal.utils.ServiceHelper;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -156,13 +173,12 @@ public class NeutronSecurityGroupRulesNorthbound {
             return Response.status(400).build();
         }
 
-        singleton.initDefaults();
-
         NeutronSecurityGroup secGroup = sgCRUD.get(singleton.getSecGroupUUID());
-
         if (secGroup == null) {
             return Response.status(400).build();
         }
+
+        singleton.initDefaults();
 
         INeutronSecurityGroupAware[] services = getSecurityGroupAwareServices();
         if (services != null) {

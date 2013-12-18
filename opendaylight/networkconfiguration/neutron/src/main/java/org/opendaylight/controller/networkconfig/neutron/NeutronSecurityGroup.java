@@ -37,10 +37,6 @@ public class NeutronSecurityGroup implements INeutronObject {
      */
     List<NeutronPort> ports;
 
-    public NeutronSecurityGroup() {
-        ports = new ArrayList<>();
-    }
-
     public void initDefaults() {
         if (secGroupUUID == null)
             secGroupUUID = UUID.randomUUID().toString();
@@ -56,6 +52,8 @@ public class NeutronSecurityGroup implements INeutronObject {
         rules = new ArrayList<>();
         rules.add(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv4));
         rules.add(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv6));
+
+        ports = new ArrayList<>();
     }
 
     private static NeutronSecurityGroupRule createDefaultRule(NeutronSecurityGroupRule_Ethertype type) {

@@ -28,7 +28,17 @@ import javax.ws.rs.core.Response;
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
 import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.opendaylight.controller.networkconfig.neutron.*;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupAware;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupRuleCRUD;
+import org.opendaylight.controller.networkconfig.neutron.NeutronCRUDInterfaces;
+import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroup;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Direction;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Ethertype;
 import org.opendaylight.controller.northbound.commons.RestMessages;
 import org.opendaylight.controller.northbound.commons.exception.ServiceUnavailableException;
 import org.opendaylight.controller.sal.utils.ServiceHelper;
@@ -180,9 +190,15 @@ public class NeutronNetworksNorthbound {
                     + RestMessages.SERVICEUNAVAILABLE.toString());
         }
 
-        INeutronSecurityGroupCRUD sgInterface = NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
-        if (sgInterface == null) {
+        INeutronSecurityGroupCRUD sgCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
+        if (sgCRUD == null) {
             throw new ServiceUnavailableException("SecurityGroup CRUD Interface "
+                    + RestMessages.SERVICEUNAVAILABLE.toString());
+        }
+
+        INeutronSecurityGroupRuleCRUD sgRuleCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupRuleCRUD(this);
+        if (sgRuleCRUD == null) {
+            throw new ServiceUnavailableException("SecurityGroupRule CRUD Interface "
                     + RestMessages.SERVICEUNAVAILABLE.toString());
         }
 
@@ -204,14 +220,15 @@ public class NeutronNetworksNorthbound {
                 for (Object instance : instances) {
                     INeutronNetworkAware service = (INeutronNetworkAware) instance;
                     int status = service.canCreateNetwork(singleton);
-                    if (status < 200 || status > 299) {
+                    if (!isOk(status)) {
                         return Response.status(status).build();
                     }
                 }
             }
 
-            int status = tryCreateDefaultGroup(singleton.getTenantID(), sgInterface, sgInstances);
-            if (status < 200 || status > 299) {
+            int status = tryCreateDefaultGroup(singleton.getTenantID(), sgRuleCRUD,
+                                               sgCRUD, sgInstances);
+            if (!isOk(status)) {
                 return Response.status(status).build();
             }
 
@@ -246,14 +263,15 @@ public class NeutronNetworksNorthbound {
                     for (Object instance: instances) {
                         INeutronNetworkAware service = (INeutronNetworkAware) instance;
                         int status = service.canCreateNetwork(test);
-                        if (status < 200 || status > 299) {
+                        if (!isOk(status)) {
                             return Response.status(status).build();
                         }
                     }
                 }
 
-                int status = tryCreateDefaultGroup(test.getTenantID(), sgInterface, sgInstances);
-                if (status < 200 || status > 299) {
+                int status = tryCreateDefaultGroup(test.getTenantID(), sgRuleCRUD,
+                                                   sgCRUD, sgInstances);
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
 
@@ -323,7 +341,7 @@ public class NeutronNetworksNorthbound {
                 INeutronNetworkAware service = (INeutronNetworkAware) instance;
                 NeutronNetwork original = networkInterface.get(netUUID);
                 int status = service.canUpdateNetwork(delta, original);
-                if (status < 200 || status > 299) {
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
             }
@@ -376,7 +394,7 @@ public class NeutronNetworksNorthbound {
             for (Object instance : instances) {
                 INeutronNetworkAware service = (INeutronNetworkAware) instance;
                 int status = service.canDeleteNetwork(singleton);
-                if (status < 200 || status > 299) {
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
             }
@@ -393,9 +411,11 @@ public class NeutronNetworksNorthbound {
 
     //TODO: Is it a good idea for the default SG to share the ID of the tenant?
     //      For now, it seems to be the most efficient way.
-    private int tryCreateDefaultGroup(String tenantID, INeutronSecurityGroupCRUD sgInterface,
+    private int tryCreateDefaultGroup(String tenantID,
+                                      INeutronSecurityGroupRuleCRUD sgRuleCRUD,
+                                      INeutronSecurityGroupCRUD sgCRUD,
                                       INeutronSecurityGroupAware[] services) {
-        if (sgInterface.exists(tenantID))  {
+        if (sgCRUD.exists(tenantID))  {
             return 200;
         }
 
@@ -406,31 +426,42 @@ public class NeutronNetworksNorthbound {
         secGroup.setDescription(NeutronSecurityGroup.DEFAULT_NAME);
         secGroup.initDefaults();
 
-        addTenantIntercommunicationRule(secGroup, NeutronSecurityGroupRule_Ethertype.IPv4);
-        addTenantIntercommunicationRule(secGroup, NeutronSecurityGroupRule_Ethertype.IPv6);
+        NeutronSecurityGroupRule tenantRuleIPv4 =
+                getTenantIntercommunicationRule(secGroup, NeutronSecurityGroupRule_Ethertype.IPv4);
+        NeutronSecurityGroupRule tenantRuleIPv6 =
+                getTenantIntercommunicationRule(secGroup, NeutronSecurityGroupRule_Ethertype.IPv6);
 
         if (services != null) {
             for (INeutronSecurityGroupAware service: services) {
                 int status = service.canCreateSecurityGroup(secGroup);
-                if (status < 200 || status > 299) {
-                    return status;
-                }
+                if (!isOk(status)) return status;
+
+                status = service.canAddSecurityGroupRule(secGroup, tenantRuleIPv4);
+                if (!isOk(status)) return status;
+
+                status = service.canAddSecurityGroupRule(secGroup, tenantRuleIPv6);
+                if (!isOk(status)) return status;
             }
         }
 
-        sgInterface.add(secGroup);
+        sgCRUD.add(secGroup);
+        sgRuleCRUD.add(tenantRuleIPv4);
+        sgRuleCRUD.add(tenantRuleIPv6);
 
         if (services != null) {
             for (INeutronSecurityGroupAware service: services) {
                 service.neutronSecurityGroupCreated(secGroup);
+                service.neutronSecurityGroupRuleAdded(secGroup, tenantRuleIPv4);
+                service.neutronSecurityGroupRuleAdded(secGroup, tenantRuleIPv6);
             }
         }
 
         return 200;
     }
 
-    private void addTenantIntercommunicationRule(NeutronSecurityGroup sg,
-                                                 NeutronSecurityGroupRule_Ethertype ethertype) {
+    private NeutronSecurityGroupRule getTenantIntercommunicationRule(
+                                                NeutronSecurityGroup sg,
+                                                NeutronSecurityGroupRule_Ethertype ethertype) {
         NeutronSecurityGroupRule rule = new NeutronSecurityGroupRule();
         rule.setEthertype(ethertype);
         rule.setDirection(NeutronSecurityGroupRule_Direction.INGRESS);
@@ -439,6 +470,10 @@ public class NeutronNetworksNorthbound {
         rule.setRemoteGroupUUID(sg.getSecGroupUUID());
         rule.initDefaults();
 
-        sg.addRule(rule);
+        return rule;
+    }
+
+    private static boolean isOk(int status) {
+        return status >= 200 && status <= 299;
     }
 }

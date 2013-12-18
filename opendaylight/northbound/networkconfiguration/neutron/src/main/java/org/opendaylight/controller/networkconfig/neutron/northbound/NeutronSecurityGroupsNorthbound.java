@@ -8,18 +8,34 @@
 
 package org.opendaylight.controller.networkconfig.neutron.northbound;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.codehaus.enunciate.jaxrs.ResponseCode;
 import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.opendaylight.controller.networkconfig.neutron.*;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupAware;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupRuleCRUD;
+import org.opendaylight.controller.networkconfig.neutron.NeutronCRUDInterfaces;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroup;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Direction;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSecurityGroupRule_Ethertype;
 import org.opendaylight.controller.northbound.commons.RestMessages;
 import org.opendaylight.controller.northbound.commons.exception.ServiceUnavailableException;
 import org.opendaylight.controller.sal.utils.ServiceHelper;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -124,6 +140,12 @@ public class NeutronSecurityGroupsNorthbound {
     public Response createSecurityGroup(final NeutronSecurityGroupRequest input) {
         INeutronSecurityGroupCRUD sgCRUD = getSecGroupCRUD();
 
+        INeutronSecurityGroupRuleCRUD sgRuleCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupRuleCRUD(this);
+        if (sgRuleCRUD == null) {
+            throw new ServiceUnavailableException("SecurityGroupRule CRUD Interface "
+                    + RestMessages.SERVICEUNAVAILABLE.toString());
+        }
+
         if (!input.isSingleton()) {
             return Response.status(400).build();
         }
@@ -137,25 +159,41 @@ public class NeutronSecurityGroupsNorthbound {
         }
 
         singleton.initDefaults();
-        //TODO: Check if both ethertypes are supported?
-        singleton.addRule(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv4));
-        singleton.addRule(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv6));
+
+        NeutronSecurityGroupRule defaultIPv4 =
+                createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv4);
+        NeutronSecurityGroupRule defaultIPv6 =
+                createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv6);
 
         INeutronSecurityGroupAware[] services = getSecurityGroupAwareServices();
         if (services != null) {
             for (INeutronSecurityGroupAware service: services) {
                 int status = service.canCreateSecurityGroup(singleton);
-                if (status < 200 || status > 299) {
+                if (!isOk(status)) {
+                    return Response.status(status).build();
+                }
+
+                status = service.canAddSecurityGroupRule(singleton, defaultIPv4);
+                if (!isOk(status)) {
+                    return Response.status(status).build();
+                }
+
+                status = service.canAddSecurityGroupRule(singleton, defaultIPv6);
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
             }
         }
 
         sgCRUD.add(singleton);
+        sgRuleCRUD.add(defaultIPv4);
+        sgRuleCRUD.add(defaultIPv6);
 
         if (services != null) {
             for (INeutronSecurityGroupAware service : services) {
                 service.neutronSecurityGroupCreated(singleton);
+                service.neutronSecurityGroupRuleAdded(singleton, defaultIPv4);
+                service.neutronSecurityGroupRuleAdded(singleton, defaultIPv6);
             }
         }
 
@@ -196,7 +234,7 @@ public class NeutronSecurityGroupsNorthbound {
         if (services != null) {
             for (INeutronSecurityGroupAware service: services) {
                 int status = service.canUpdateSecurityGroup(singleton, original);
-                if (status < 200 || status > 299) {
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
             }
@@ -241,7 +279,7 @@ public class NeutronSecurityGroupsNorthbound {
         if (services != null) {
             for (INeutronSecurityGroupAware service: services) {
                 int status = service.canDeleteSecurityGroup(secGroup);
-                if (status < 200 || status > 299) {
+                if (!isOk(status)) {
                     return Response.status(status).build();
                 }
             }
@@ -277,5 +315,9 @@ public class NeutronSecurityGroupsNorthbound {
         ans.setEthertype(type);
         ans.setDirection(NeutronSecurityGroupRule_Direction.EGRESS);
         return ans;
+    }
+
+    private static boolean isOk(int status) {
+        return status >= 200 && status <= 299;
     }
 }

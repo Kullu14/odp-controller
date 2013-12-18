@@ -214,6 +214,9 @@ public class NeutronPortsNorthbound {
             if (portInterface.macInUse(singleton.getMacAddress())) {
                 return Response.status(409).build();
             }
+
+            ensureDefaultSecurityGroup(singleton);
+
             Object[] instances = ServiceHelper.getGlobalInstances(INeutronPortAware.class, this, null);
             if (instances != null) {
                 for (Object instance : instances) {
@@ -305,6 +308,9 @@ public class NeutronPortsNorthbound {
                 if (portInterface.macInUse(test.getMacAddress())) {
                     return Response.status(409).build();
                 }
+
+                ensureDefaultSecurityGroup(test);
+
                 if (instances != null) {
                     for (Object instance : instances) {
                         INeutronPortAware service = (INeutronPortAware) instance;
@@ -451,9 +457,7 @@ public class NeutronPortsNorthbound {
             }
         }
 
-        //        TODO: Support change of security groups
-        // update the port and return the modified object
-                portInterface.update(portUUID, singleton);
+        portInterface.update(portUUID, singleton);
         NeutronPort updatedPort = portInterface.get(portUUID);
         if (instances != null) {
             for (Object instance : instances) {
@@ -463,7 +467,6 @@ public class NeutronPortsNorthbound {
         }
         return Response.status(200).entity(
                 new NeutronPortRequest(updatedPort)).build();
-
     }
 
     /**
@@ -513,5 +516,13 @@ public class NeutronPortsNorthbound {
             }
         }
         return Response.status(204).build();
+    }
+
+    private static void ensureDefaultSecurityGroup(NeutronPort port) {
+        List<String> secGroups = port.getSecurityGroups();
+        if (secGroups.isEmpty()) {
+            // TODO: Should the default SG share the ID of the tenant?
+            secGroups.add(port.getTenantID());
+        }
     }
 }

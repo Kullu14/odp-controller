@@ -8,11 +8,17 @@
 
 package org.opendaylight.controller.networkconfig.neutron.implementation;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
-import org.opendaylight.controller.networkconfig.neutron.*;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronPortCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSecurityGroupCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronSubnetCRUD;
+import org.opendaylight.controller.networkconfig.neutron.NeutronCRUDInterfaces;
+import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
+import org.opendaylight.controller.networkconfig.neutron.NeutronPort;
+import org.opendaylight.controller.networkconfig.neutron.NeutronSubnet;
+import org.opendaylight.controller.networkconfig.neutron.Neutron_IPs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,23 +69,9 @@ public class NeutronPortInterface extends AbstractNeutronInterface<NeutronPort>
         NeutronNetwork network = networkIf.get(input.getNetworkUUID());
         network.addPort(input);
 
-        INeutronSecurityGroupCRUD secGroupCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
-        ensureDefaultSecurityGroup(input);
-        addPortToSecurityGroups(input, input.getSecurityGroups(), secGroupCRUD);
-
+        addPortToSecurityGroups(input, input.getSecurityGroups(),
+                                NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this));
         return true;
-    }
-
-    private static void ensureDefaultSecurityGroup(NeutronPort port) {
-        List<String> secGroups = port.getSecurityGroups();
-        if (secGroups == null)   {
-            secGroups = new ArrayList<>();
-            port.setSecurityGroups(secGroups);
-        }
-
-        if (secGroups.isEmpty()) {
-            secGroups.add(port.getTenantID());
-        }
     }
 
     @Override
@@ -104,13 +96,8 @@ public class NeutronPortInterface extends AbstractNeutronInterface<NeutronPort>
             subnet.removePort(port);
         }
 
-        List<String> secGroups = port.getSecurityGroups();
-        if (secGroups != null) {
-            INeutronSecurityGroupCRUD secGroupCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
-            for (String secGroup : port.getSecurityGroups()) {
-                secGroupCRUD.get(secGroup).removePort(port);
-            }
-        }
+        removePortFromSecurityGroups(port, port.getSecurityGroups(),
+                                     NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this));
         return true;
     }
 
@@ -139,13 +126,14 @@ public class NeutronPortInterface extends AbstractNeutronInterface<NeutronPort>
             }
         }
 
-        INeutronSecurityGroupCRUD secGroupCRUD = NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
-        NeutronPortSecurityGroupDiff diff = new NeutronPortSecurityGroupDiff(
-                target.getSecurityGroups(), delta.getSecurityGroups());
+        INeutronSecurityGroupCRUD secGroupCRUD =
+                NeutronCRUDInterfaces.getNeutronSecurityGroupCRUD(this);
+        NeutronPortSecurityGroupDiff diff =
+                new NeutronPortSecurityGroupDiff(target.getSecurityGroups(),
+                                                 delta.getSecurityGroups());
 
         addPortToSecurityGroups(target, diff.getJoining(), secGroupCRUD);
-        for (String sgId : diff.getLeaving())
-            secGroupCRUD.get(sgId).removePort(target);
+        removePortFromSecurityGroups(target, diff.getLeaving(), secGroupCRUD);
 
         return overwrite(target, delta);
     }
@@ -155,6 +143,13 @@ public class NeutronPortInterface extends AbstractNeutronInterface<NeutronPort>
                                                 INeutronSecurityGroupCRUD secGroupCRUD) {
         for (String uuid : secGroups)
             secGroupCRUD.get(uuid).addPort(port);
+    }
+
+    private static void removePortFromSecurityGroups(NeutronPort port,
+                                                     Iterable<String> secGroups,
+                                                     INeutronSecurityGroupCRUD secGroupCRUD) {
+        for (String uuid : secGroups)
+            secGroupCRUD.get(uuid).removePort(port);
     }
 
     @Override

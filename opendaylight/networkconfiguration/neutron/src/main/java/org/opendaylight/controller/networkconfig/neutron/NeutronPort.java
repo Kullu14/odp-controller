@@ -235,12 +235,17 @@ public class NeutronPort implements INeutronObject {
     }
 
     public void initDefaults() {
-        adminStateUp = true;
+        if (adminStateUp == null) {
+           adminStateUp = true;
+        }
         if (status == null) {
             status = "ACTIVE";
         }
         if (fixedIPs == null) {
-            fixedIPs = new ArrayList<Neutron_IPs>();
+            fixedIPs = new ArrayList<>();
+        }
+        if (securityGroups == null) {
+            securityGroups = new ArrayList<>();
         }
     }
 
