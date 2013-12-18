@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
+import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
 import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 
 public class Activator extends ComponentActivatorAbstractBase {
@@ -44,7 +45,9 @@ public class Activator extends ComponentActivatorAbstractBase {
      * Object
      */
     public Object[] getImplementations() {
-        Object[] res = { LocalBridgeDataClient.class };
+        Object[] res = {
+                LocalBridgeDataClient.class,
+                LocalPortDataClient.class};
         return res;
     }
 
@@ -64,10 +67,17 @@ public class Activator extends ComponentActivatorAbstractBase {
     public void configureInstance(Component c,
                                   Object imp,
                                   String containerName) {
+        logger.debug("midonet.cluster.local.Activator.configreInstance entered.");
         if (imp.equals(LocalBridgeDataClient.class)) {
             // export the service
             c.setInterface(
                     new String[] { BridgeDataClient.class.getName()}, null);
+            logger.debug("Registered LocalBridgeDataClient.");
+        } else if (imp.equals(LocalPortDataClient.class)) {
+            // export the service
+            c.setInterface(
+                    new String[] { PortDataClient.class.getName()}, null);
+            logger.debug("Registered LocalPortDataClient.");
         }
     }
 }

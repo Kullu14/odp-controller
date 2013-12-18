@@ -6,9 +6,9 @@ package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
 import java.util.UUID;
 
+import org.midonet.cluster.data.Port;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data.Port;
 
 
 public class LocalPortDataClient implements PortDataClient {
@@ -16,7 +16,7 @@ public class LocalPortDataClient implements PortDataClient {
         return false;
     }
 
-    public UUID portsCreate(Port port) throws StateAccessException {
+    public UUID portsCreate(Port<?,?> port) throws StateAccessException {
         return null;
     }
 
@@ -24,11 +24,12 @@ public class LocalPortDataClient implements PortDataClient {
         return;
     }
 
-    public Port portsGet(UUID id) throws StateAccessException {
+    public Port<?,?> portsGet(UUID id) throws StateAccessException {
         return null;
     }
 
-    public void portsUpdate(Port port) throws StateAccessException {
+    @Override
+    public void portsUpdate(Port<?,?> port) throws StateAccessException {
         return;
     }
 }

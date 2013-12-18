@@ -4,11 +4,12 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet;
 
+import org.midonet.cluster.data.Bridge;
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
 import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data.Bridge;
+import org.opendaylight.controller.sal.utils.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +18,21 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
 
     BridgeDataClient dataClient;
 
+    public MidonetNetworkHandler() {
+        Object service = ServiceHelper.getGlobalInstance(
+                BridgeDataClient.class, this);
+        if (service != null) {
+            this.dataClient = (BridgeDataClient) service;
+        } else {
+            logger.warn("Cannot look up BridgeDataClient impl.");
+        }
+    }
+
     @Override
     public int canCreateNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canCreateNetwork: " +
                      network.getID());
-        Bridge bridge = null;
+        Bridge bridge = new Bridge();
         try {
             dataClient.bridgesCreate(bridge);
         } catch (StateAccessException e) {
@@ -29,7 +40,7 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
             return 500;
         }
 
-        network.setNetworkUUID(bridge.getNetworkUUID().toString());
+        network.setNetworkUUID(bridge.getId().toString());
         return 200;
     }
 

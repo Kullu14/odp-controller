@@ -6,7 +6,7 @@ package org.opendaylight.controller.networkconfig.neutron.midonet.cluster;
 
 import java.util.UUID;
 
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data.Bridge;
+import org.midonet.cluster.data.Bridge;
 
 
 public interface BridgeDataClient {
