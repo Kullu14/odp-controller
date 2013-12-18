@@ -787,7 +787,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
-      <artifactId>networkconfig.neutron.midonet.cluster.local.data</artifactId>
+      <artifactId>networkconfig.neutron.midonet.model</artifactId>
       <version>${controller.version}</version>
     </dependency>
     <dependency>
