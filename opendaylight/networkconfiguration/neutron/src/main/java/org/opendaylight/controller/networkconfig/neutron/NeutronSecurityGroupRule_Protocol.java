@@ -6,20 +6,32 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 @XmlEnum
-public enum NeutronSecurityGroupRule_Ethertype {
+public enum NeutronSecurityGroupRule_Protocol {
     // See OpenStack Network API v2.0 Reference for description of
     // annotated attributes
 
-    @XmlEnumValue("IPv4") IPv4 {
+    @XmlEnumValue("null") NULL{
         @Override
         public String toString() {
-            return "IPv4";
+            return "null";
         }
     },
-    @XmlEnumValue("IPv6") IPv6 {
+    @XmlEnumValue("tcp") TCP {
         @Override
         public String toString() {
-            return "IPv6";
+            return "tcp";
+        }
+    },
+    @XmlEnumValue("upd") UDP {
+        @Override
+        public String toString() {
+            return "upd";
+        }
+    },
+    @XmlEnumValue("icmp") ICMP {
+        @Override
+        public String toString() {
+            return "icmp";
         }
     }
 }

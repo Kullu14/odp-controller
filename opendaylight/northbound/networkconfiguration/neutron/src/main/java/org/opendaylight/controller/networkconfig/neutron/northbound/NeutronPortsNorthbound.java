@@ -99,7 +99,7 @@ public class NeutronPortsNorthbound {
             throw new ServiceUnavailableException("Port CRUD Interface "
                     + RestMessages.SERVICEUNAVAILABLE.toString());
         }
-        List<NeutronPort> allPorts = portInterface.getAllPorts();
+        List<NeutronPort> allPorts = portInterface.getAll();
         List<NeutronPort> ans = new ArrayList<NeutronPort>();
         Iterator<NeutronPort> i = allPorts.iterator();
         while (i.hasNext()) {
@@ -146,16 +146,16 @@ public class NeutronPortsNorthbound {
             throw new ServiceUnavailableException("Port CRUD Interface "
                     + RestMessages.SERVICEUNAVAILABLE.toString());
         }
-        if (!portInterface.portExists(portUUID)) {
+        if (!portInterface.exists(portUUID)) {
             return Response.status(404).build();
         }
         if (fields.size() > 0) {
-            NeutronPort ans = portInterface.getPort(portUUID);
+            NeutronPort ans = portInterface.get(portUUID);
             return Response.status(200).entity(
                     new NeutronPortRequest(extractFields(ans, fields))).build();
         } else {
             return Response.status(200).entity(
-                    new NeutronPortRequest(portInterface.getPort(portUUID))).build();
+                    new NeutronPortRequest(portInterface.get(portUUID))).build();
         }
     }
 
@@ -201,10 +201,10 @@ public class NeutronPortsNorthbound {
             if (singleton.getNetworkUUID() == null) {
                 return Response.status(400).build();
             }
-            if (portInterface.portExists(singleton.getID())) {
+            if (portInterface.exists(singleton.getID())) {
                 return Response.status(400).build();
             }
-            if (!networkInterface.networkExists(singleton.getNetworkUUID())) {
+            if (!networkInterface.exists(singleton.getNetworkUUID())) {
                 return Response.status(404).build();
             }
             if (singleton.getMacAddress() == null ||
@@ -238,10 +238,10 @@ public class NeutronPortsNorthbound {
                     if (ip.getSubnetUUID() == null) {
                         return Response.status(400).build();
                     }
-                    if (!subnetInterface.subnetExists(ip.getSubnetUUID())) {
+                    if (!subnetInterface.exists(ip.getSubnetUUID())) {
                         return Response.status(400).build();
                     }
-                    NeutronSubnet subnet = subnetInterface.getSubnet(ip.getSubnetUUID());
+                    NeutronSubnet subnet = subnetInterface.get(ip.getSubnetUUID());
                     if (!singleton.getNetworkUUID().equalsIgnoreCase(subnet.getNetworkUUID())) {
                         return Response.status(400).build();
                     }
@@ -257,7 +257,7 @@ public class NeutronPortsNorthbound {
             }
 
             // add the port to the cache
-            portInterface.addPort(singleton);
+            portInterface.add(singleton);
             if (instances != null) {
                 for (Object instance : instances) {
                     INeutronPortAware service = (INeutronPortAware) instance;
@@ -277,7 +277,7 @@ public class NeutronPortsNorthbound {
                  * have a valid MAC and the MAC not be in use.  Further the bulk request
                  * can't already contain a new port with the same UUID
                  */
-                if (portInterface.portExists(test.getID())) {
+                if (portInterface.exists(test.getID())) {
                     return Response.status(400).build();
                 }
                 if (testMap.containsKey(test.getID())) {
@@ -296,7 +296,7 @@ public class NeutronPortsNorthbound {
                     }
                 }
                 testMap.put(test.getID(), test);
-                if (!networkInterface.networkExists(test.getNetworkUUID())) {
+                if (!networkInterface.exists(test.getNetworkUUID())) {
                     return Response.status(404).build();
                 }
                 if (!test.getMacAddress().matches("^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$")) {
@@ -328,10 +328,10 @@ public class NeutronPortsNorthbound {
                         if (ip.getSubnetUUID() == null) {
                             return Response.status(400).build();
                         }
-                        if (!subnetInterface.subnetExists(ip.getSubnetUUID())) {
+                        if (!subnetInterface.exists(ip.getSubnetUUID())) {
                             return Response.status(400).build();
                         }
-                        NeutronSubnet subnet = subnetInterface.getSubnet(ip.getSubnetUUID());
+                        NeutronSubnet subnet = subnetInterface.get(ip.getSubnetUUID());
                         if (!test.getNetworkUUID().equalsIgnoreCase(subnet.getNetworkUUID())) {
                             return Response.status(400).build();
                         }
@@ -353,7 +353,7 @@ public class NeutronPortsNorthbound {
             i = bulk.iterator();
             while (i.hasNext()) {
                 NeutronPort test = i.next();
-                portInterface.addPort(test);
+                portInterface.add(test);
                 if (instances != null) {
                     for (Object instance : instances) {
                         INeutronPortAware service = (INeutronPortAware) instance;
@@ -397,15 +397,15 @@ public class NeutronPortsNorthbound {
         }
 
         // port has to exist and only a single delta is supported
-        if (!portInterface.portExists(portUUID)) {
+        if (!portInterface.exists(portUUID)) {
             return Response.status(404).build();
         }
-        NeutronPort target = portInterface.getPort(portUUID);
+        NeutronPort target = portInterface.get(portUUID);
         if (!input.isSingleton()) {
             return Response.status(400).build();
         }
         NeutronPort singleton = input.getSingleton();
-        NeutronPort original = portInterface.getPort(portUUID);
+        NeutronPort original = portInterface.get(portUUID);
 
         // deltas restricted by Neutron
         if (singleton.getID() != null || singleton.getTenantID() != null ||
@@ -433,10 +433,10 @@ public class NeutronPortsNorthbound {
                 if (ip.getSubnetUUID() == null) {
                     return Response.status(400).build();
                 }
-                if (!subnetInterface.subnetExists(ip.getSubnetUUID())) {
+                if (!subnetInterface.exists(ip.getSubnetUUID())) {
                     return Response.status(400).build();
                 }
-                NeutronSubnet subnet = subnetInterface.getSubnet(ip.getSubnetUUID());
+                NeutronSubnet subnet = subnetInterface.get(ip.getSubnetUUID());
                 if (!target.getNetworkUUID().equalsIgnoreCase(subnet.getNetworkUUID())) {
                     return Response.status(400).build();
                 }
@@ -453,8 +453,8 @@ public class NeutronPortsNorthbound {
 
         //        TODO: Support change of security groups
         // update the port and return the modified object
-                portInterface.updatePort(portUUID, singleton);
-        NeutronPort updatedPort = portInterface.getPort(portUUID);
+                portInterface.update(portUUID, singleton);
+        NeutronPort updatedPort = portInterface.get(portUUID);
         if (instances != null) {
             for (Object instance : instances) {
                 INeutronPortAware service = (INeutronPortAware) instance;
@@ -486,15 +486,15 @@ public class NeutronPortsNorthbound {
         }
 
         // port has to exist and not be owned by anyone.  then it can be removed from the cache
-        if (!portInterface.portExists(portUUID)) {
+        if (!portInterface.exists(portUUID)) {
             return Response.status(404).build();
         }
-        NeutronPort port = portInterface.getPort(portUUID);
+        NeutronPort port = portInterface.get(portUUID);
         if (port.getDeviceID() != null ||
                 port.getDeviceOwner() != null) {
             Response.status(403).build();
         }
-        NeutronPort singleton = portInterface.getPort(portUUID);
+        NeutronPort singleton = portInterface.get(portUUID);
         Object[] instances = ServiceHelper.getGlobalInstances(INeutronPortAware.class, this, null);
         if (instances != null) {
             for (Object instance : instances) {
@@ -505,7 +505,7 @@ public class NeutronPortsNorthbound {
                 }
             }
         }
-        portInterface.removePort(portUUID);
+        portInterface.remove(portUUID);
         if (instances != null) {
             for (Object instance : instances) {
                 INeutronPortAware service = (INeutronPortAware) instance;

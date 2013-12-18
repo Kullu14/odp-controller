@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 
-public class NeutronPort {
+public class NeutronPort implements INeutronObject {
     // See OpenStack Network API v2.0 Reference for description of
     // annotated attributes
 
@@ -227,6 +227,9 @@ public class NeutronPort {
             if (s.equals("tenant_id")) {
                 ans.setTenantID(this.getTenantID());
             }
+            if (s.equals("security_groups")) {
+                ans.setSecurityGroups(this.getSecurityGroups());
+            }
         }
         return ans;
     }
@@ -260,6 +263,6 @@ public class NeutronPort {
         return "NeutronPort [portUUID=" + portUUID + ", networkUUID=" + networkUUID + ", name=" + name
                 + ", adminStateUp=" + adminStateUp + ", status=" + status + ", macAddress=" + macAddress
                 + ", fixedIPs=" + fixedIPs + ", deviceID=" + deviceID + ", deviceOwner=" + deviceOwner + ", tenantID="
-                + tenantID + ", floatingIPMap=" + floatingIPMap + "]";
+                + tenantID + ", securityGroups=" + securityGroups + ", floatingIPMap=" + floatingIPMap + "]";
     }
 }

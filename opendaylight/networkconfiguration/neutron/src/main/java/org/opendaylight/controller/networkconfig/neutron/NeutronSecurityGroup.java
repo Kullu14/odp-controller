@@ -1,6 +1,8 @@
 package org.opendaylight.controller.networkconfig.neutron;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,9 +11,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class NeutronSecurityGroup {
+public class NeutronSecurityGroup implements INeutronObject {
     // See OpenStack Network API v2.0 Reference for description of
     // annotated attributes
+
+    public static String DEFAULT_NAME = "default";
 
     @XmlElement (name="id")
     String secGroupUUID;
@@ -28,12 +32,38 @@ public class NeutronSecurityGroup {
     @XmlElement (name="tenant_id")
     String tenantUUID;
 
+    /* Holds the Neutron Ports associated with an instance
+     * used to determine if that instance can be deleted.
+     */
+    List<NeutronPort> ports;
+
     public NeutronSecurityGroup() {
+        ports = new ArrayList<>();
     }
 
     public void initDefaults() {
-        name = "";
-        description = "";
+        if (secGroupUUID == null)
+            secGroupUUID = UUID.randomUUID().toString();
+
+        if (name == null) {
+            name = "";
+        }
+
+        if (description == null) {
+            description = "";
+        }
+
+        rules = new ArrayList<>();
+        rules.add(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv4));
+        rules.add(createDefaultRule(NeutronSecurityGroupRule_Ethertype.IPv6));
+    }
+
+    private static NeutronSecurityGroupRule createDefaultRule(NeutronSecurityGroupRule_Ethertype type) {
+        NeutronSecurityGroupRule ans = new NeutronSecurityGroupRule();
+        ans.initDefaults();
+        ans.setEthertype(type);
+        ans.setDirection(NeutronSecurityGroupRule_Direction.EGRESS);
+        return ans;
     }
 
     public String getID() {
@@ -54,6 +84,10 @@ public class NeutronSecurityGroup {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isDefault() {
+        return this.name.equals(DEFAULT_NAME);
     }
 
     public String getDescription() {
@@ -78,6 +112,26 @@ public class NeutronSecurityGroup {
 
     public void setTenantUUID(String tenantUUID) {
         this.tenantUUID = tenantUUID;
+    }
+
+    public void addRule(NeutronSecurityGroupRule rule) {
+        rules.add(rule);
+    }
+
+    public void removeRule(NeutronSecurityGroupRule rule) {
+        rules.remove(rule);
+    }
+
+    public void addPort(NeutronPort port) {
+        ports.add(port);
+    }
+
+    public void removePort(NeutronPort port) {
+        ports.remove(port);
+    }
+
+    public List<NeutronPort> getPorts() {
+        return ports;
     }
 
     /**
@@ -113,5 +167,12 @@ public class NeutronSecurityGroup {
             }
         }
         return ans;
+    }
+
+    @Override
+    public String toString() {
+        return "NeutronSecurityGroup [secGroupUUID=" + secGroupUUID + ", name=" + name
+                + ", description=" + description + ", tenantUUID=" + tenantUUID
+                + ", rules=" + rules + "]";
     }
 }

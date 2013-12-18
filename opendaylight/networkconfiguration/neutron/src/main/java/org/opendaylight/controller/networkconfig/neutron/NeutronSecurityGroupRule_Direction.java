@@ -10,6 +10,16 @@ public enum NeutronSecurityGroupRule_Direction {
     // See OpenStack Network API v2.0 Reference for description of
     // annotated attributes
 
-    @XmlEnumValue("egress") EGRESS,
-    @XmlEnumValue("ingress") INGRESS
+    @XmlEnumValue("egress") EGRESS {
+        @Override
+        public String toString() {
+            return "egress";
+        }
+    },
+    @XmlEnumValue("ingress") INGRESS {
+        @Override
+        public String toString() {
+            return "ingress";
+        }
+    }
 }
