@@ -19,19 +19,23 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
     BridgeDataClient dataClient;
 
     public MidonetNetworkHandler() {
-        Object service = ServiceHelper.getGlobalInstance(
-                BridgeDataClient.class, this);
-        if (service != null) {
-            this.dataClient = (BridgeDataClient) service;
-        } else {
-            logger.warn("Cannot look up BridgeDataClient impl.");
-        }
     }
 
     @Override
     public int canCreateNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canCreateNetwork: " +
                      network.getID());
+
+        Object service = ServiceHelper.getGlobalInstance(
+                BridgeDataClient.class, this);
+        if (service != null) {
+            logger.warn("Found a BridgeDataClient impl.");
+            this.dataClient = (BridgeDataClient) service;
+        } else {
+            logger.warn("Cannot look up BridgeDataClient impl.");
+            return 500;
+        }
+
         Bridge bridge = new Bridge();
         try {
             dataClient.bridgesCreate(bridge);
