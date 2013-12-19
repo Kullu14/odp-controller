@@ -51,7 +51,9 @@
             <Import-Package>
               org.apache.commons.net.util,
               org.apache.felix.dm,
+              org.midonet.cluster,
               org.midonet.cluster.data,
+              org.midonet.midolman.state,
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
               org.opendaylight.controller.sal.core,
               org.opendaylight.controller.sal.utils,
