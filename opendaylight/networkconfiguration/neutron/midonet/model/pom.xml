@@ -51,6 +51,7 @@
             <Import-Package>
             </Import-Package>
             <Export-Package>
+              org.midonet.cluster,
               org.midonet.cluster.data
             </Export-Package>
           </instructions>
