@@ -787,11 +787,6 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
-      <artifactId>networkconfig.neutron.midonet.model</artifactId>
-      <version>${controller.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
       <artifactId>networkconfig.neutron.northbound</artifactId>
       <version>${controller.version}</version>
     </dependency>
