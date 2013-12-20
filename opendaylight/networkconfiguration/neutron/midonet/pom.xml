@@ -77,9 +77,9 @@
         <version>0.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-        <artifactId>networkconfig.neutron.midonet.model</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+      <groupId>org.midonet</groupId>
+      <artifactId>midolman-with-dependencies</artifactId>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>

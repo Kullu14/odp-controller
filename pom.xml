@@ -92,7 +92,6 @@
     <module>opendaylight/networkconfiguration/neutron/midonet</module>
     <module>opendaylight/networkconfiguration/neutron/midonet/cluster</module>
     <module>opendaylight/networkconfiguration/neutron/midonet/cluster/local</module>
-    <module>opendaylight/networkconfiguration/neutron/midonet/model</module>
     <module>opendaylight/northbound/networkconfiguration/neutron</module>
 
     <!-- Northbound bundles -->

@@ -6,7 +6,8 @@ package org.midonet.cluster;
 
 import java.util.UUID;
 
-import org.midonet.cluster.data.*;
+import org.midonet.cluster.data.Bridge;
+import org.midonet.cluster.data.Port;
 import org.midonet.midolman.serialization.SerializationException;
 import org.midonet.midolman.state.StateAccessException;
 

@@ -8,7 +8,8 @@ import java.util.UUID;
 
 import org.midonet.midolman.serialization.SerializationException;
 import org.midonet.midolman.state.StateAccessException;
-import org.midonet.cluster.data.*;
+import org.midonet.cluster.data.Bridge;
+import org.midonet.cluster.data.Port;
 
 public interface DataClient {
 

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.midonet.cluster.DataClient;
 import org.midonet.cluster.data.Bridge;
+import org.midonet.midolman.ZkCluster;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
 import org.slf4j.Logger;
@@ -31,15 +32,13 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     public UUID bridgesCreate(Bridge bridge) throws StateAccessException {
         UUID bridgeUuid = null;
         if (bridge != null) {
-            // TODO(tomohiko) Retrieve a data client instance.
-            DataClient dataClient = null;
+            DataClient dataClient = ZkCluster.startCluster("/home/dev/mido/midonet/midolman/conf/midolman.conf");
             try {
                 dataClient.bridgesCreate(bridge);
                 bridgeUuid = bridge.getId();
             } catch (Exception e) {
                 logger.warn("Failed to create a bridge.");
             }
-            // bridge.setId(UUID.randomUUID());
             return bridge.getId();
         }
         return bridgeUuid;
