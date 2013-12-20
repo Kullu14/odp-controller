@@ -158,7 +158,8 @@
               org.slf4j,
             </Import-Package>
             <Export-Package>
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local
+              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local,
+              org.midonet.cluster.data
             </Export-Package>
             <Bundle-Activator>
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local.Activator

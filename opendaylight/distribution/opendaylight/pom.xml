@@ -786,6 +786,11 @@
       <version>${controller.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.midonet</groupId>
+      <artifactId>midolman-with-dependencies</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>networkconfig.neutron.northbound</artifactId>
       <version>${controller.version}</version>
