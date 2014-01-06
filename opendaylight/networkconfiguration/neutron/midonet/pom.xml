@@ -51,10 +51,10 @@
             <Import-Package>
               org.apache.commons.net.util,
               org.apache.felix.dm,
+              org.midonet.cluster.data,
               org.opendaylight.controller.clustering.services,
               org.opendaylight.controller.networkconfig.neutron,
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data,
               org.opendaylight.controller.sal.core,
               org.opendaylight.controller.sal.utils,
               org.osgi.service.component,
@@ -77,8 +77,18 @@
         <version>0.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>org.midonet</groupId>
+      <artifactId>midolman-with-dependencies</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal</artifactId>
+      <version>0.5.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>

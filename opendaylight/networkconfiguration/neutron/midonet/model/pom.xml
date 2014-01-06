@@ -36,7 +36,7 @@
     </site>
   </distributionManagement>
   <groupId>org.opendaylight.controller</groupId>
-  <artifactId>networkconfig.neutron.midonet.cluster.local.data</artifactId>
+  <artifactId>networkconfig.neutron.midonet.model</artifactId>
   <version>0.4.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <build>
@@ -49,10 +49,10 @@
         <configuration>
           <instructions>
             <Import-Package>
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data
             </Import-Package>
             <Export-Package>
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local.data
+              org.midonet.cluster,
+              org.midonet.cluster.data
             </Export-Package>
           </instructions>
           <manifestLocation>${project.basedir}/src/main/resources/META-INF</manifestLocation>
@@ -61,28 +61,5 @@
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>networkconfig.neutron.midonet.cluster</artifactId>
-      <version>0.4.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.dependencymanager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal</artifactId>
-      <version>0.5.1-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
   </dependencies>
 </project>

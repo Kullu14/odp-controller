@@ -49,14 +49,10 @@
         <configuration>
           <instructions>
             <Import-Package>
-              org.apache.felix.dm,
-              org.apache.commons.net.util,
-              org.osgi.service.component,
-              org.slf4j,
+              org.midonet.cluster.data
             </Import-Package>
             <Export-Package>
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data
+              org.opendaylight.controller.networkconfig.neutron.midonet.cluster
             </Export-Package>
           </instructions>
           <manifestLocation>${project.basedir}/src/main/resources/META-INF</manifestLocation>
@@ -65,6 +61,11 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>org.midonet</groupId>
+      <artifactId>midolman-with-dependencies</artifactId>
+      <version>1.0</version>
+    </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>

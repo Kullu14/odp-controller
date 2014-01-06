@@ -49,22 +49,122 @@
         <configuration>
           <instructions>
             <Import-Package>
-              org.apache.commons.net.util,
+              !com.google.inject.internal.asm.util,
+              !com.google.protobuf,
+              !com.sun.management,
+              !com.sun.tools.attach,
+              !com.sun.xml.fastinfoset.stax,
+              !com.thoughtworks.paranamer,
+              !edu.emory.mathcs.backport.java.util,
+              !groovy.lang,
+              !javax.jms,
+              !javax.mail,
+              !javax.mail.internet,
+              !javax.management,
+              !javax.management.openmbean,
+              !javax.management.remote,
+              !javax.naming,
+              !javax.naming.spi,
+              !javax.net,
+              !javax.net.ssl,
+              !javax.security.auth,
+              !javax.security.auth.callback,
+              !javax.security.auth.kerberos,
+              !javax.security.auth.login,
+              !javax.security.auth.spi,
+              !javax.security.auth.x500,
+              !javax.security.cert,
+              !javax.security.sasl,
+              !javax.sql,
+              !javax.swing,
+              !javax.swing.event,
+              !javax.swing.tree,
+              !javax.xml.bind,
+              !javax.xml.bind.annotation,
+              !javax.xml.datatype,
+              !javax.xml.namespace,
+              !javax.xml.parsers,
+              !javax.xml.stream,
+              !javax.xml.transform,
+              !javax.xml.transform.dom,
+              !javax.xml.transform.stream,
+              !javax.xml.xpath,
+              !joptsimple,
+              !junit.framework,
+              !org.apache.avalon.framework.logger,
+              !org.apache.commons.beanutils,
+              !org.apache.commons.collections,
+              !org.apache.commons.digester,
+              !org.apache.commons.digester.substitution,
+              !org.apache.commons.digester.xmlrules,
+              !org.apache.commons.jexl2,
+              !org.apache.commons.jxpath,
+              !org.apache.commons.jxpath.ri,
+              !org.apache.commons.jxpath.ri.compiler,
+              !org.apache.commons.jxpath.ri.model,
+              !org.apache.commons.lang3.tuple,
+              !org.apache.commons.vfs2,
+              !org.apache.commons.vfs2.provider,
+              !org.apache.hadoop.conf,
+              !org.apache.hadoop.filecache,
+              !org.apache.hadoop.fs,
+              !org.apache.hadoop.io,
+              !org.apache.hadoop.io.compress,
+              !org.apache.hadoop.io.serializer,
+              !org.apache.hadoop.mapred,
+              !org.apache.hadoop.mapreduce,
+              !org.apache.hadoop.util,
+              !org.apache.log,
+              !org.apache.log4j.jmx,
+              !org.apache.tools.ant,
+              !org.apache.tools.ant.types,
+              !org.apache.velocity,
+              !org.apache.velocity.app,
+              !org.apache.velocity.context,
+              !org.apache.velocity.exception,
+              !org.apache.xml.resolver,
+              !org.apache.xml.resolver.helpers,
+              !org.apache.xml.resolver.readers,
+              !org.apache.xml.resolver.tools,
+              !org.codehaus.groovy.control,
+              !org.codehaus.groovy.reflection,
+              !org.codehaus.groovy.runtime,
+              !org.codehaus.groovy.runtime.callsite,
+              !org.codehaus.groovy.runtime.typehandling,
+              !org.codehaus.janino,
+              !org.ietf.jgss,
+              !org.jboss.logging,
+              !org.joda.time,
+              !org.joda.time.format,
+              !org.omg.CORBA,
+              !org.omg.CORBA.portable,
+              !org.osgi.framework,
+              !org.osgi.service.cm,
+              !org.osgi.service.log,
+              !org.osgi.service.metatype,
+              !org.osgi.util.tracker,
+              !org.w3c.dom,
+              !org.w3c.dom.bootstrap,
+              !org.w3c.dom.ls,
+              !org.xml.sax,
+              !org.xml.sax.ext,
+              !org.xml.sax.helpers,
+              !sun.misc,
+              !sun.reflect,
+              !sun.reflect.generics.reflectiveObjects,
               org.apache.felix.dm,
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster,
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.data,
               org.opendaylight.controller.sal.core,
-              org.opendaylight.controller.sal.utils,
-              org.osgi.service.component,
               org.slf4j,
-              javax.xml.bind.annotation
             </Import-Package>
             <Export-Package>
-              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local
+              org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local,
+              org.midonet.cluster.data
             </Export-Package>
             <Bundle-Activator>
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local.Activator
             </Bundle-Activator>
+            <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
           </instructions>
           <manifestLocation>${project.basedir}/src/main/resources/META-INF</manifestLocation>
         </configuration>
@@ -78,8 +178,9 @@
       <version>0.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <groupId>org.midonet</groupId>
+      <artifactId>midolman-with-dependencies</artifactId>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
