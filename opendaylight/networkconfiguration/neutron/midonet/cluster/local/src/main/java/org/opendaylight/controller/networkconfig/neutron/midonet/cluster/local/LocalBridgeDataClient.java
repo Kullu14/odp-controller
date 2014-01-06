@@ -32,7 +32,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     public UUID bridgesCreate(Bridge bridge) throws StateAccessException {
         UUID bridgeUuid = null;
         if (bridge != null) {
-            DataClient dataClient = ZkCluster.startCluster("/home/dev/mido/midonet/midolman/conf/midolman.conf");
+            DataClient dataClient = ZkCluster.getClusterClient();
             try {
                 dataClient.bridgesCreate(bridge);
                 bridgeUuid = bridge.getId();

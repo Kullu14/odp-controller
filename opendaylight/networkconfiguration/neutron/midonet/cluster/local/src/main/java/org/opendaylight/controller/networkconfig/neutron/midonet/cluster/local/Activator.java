@@ -5,12 +5,12 @@
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
 import org.apache.felix.dm.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.midonet.midolman.ZkCluster;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
 import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator extends ComponentActivatorAbstractBase {
     protected static final Logger logger = LoggerFactory
@@ -67,7 +67,6 @@ public class Activator extends ComponentActivatorAbstractBase {
     public void configureInstance(Component c,
                                   Object imp,
                                   String containerName) {
-        logger.debug("midonet.cluster.local.Activator.configreInstance entered.");
         if (imp.equals(LocalBridgeDataClient.class)) {
             // export the service
             c.setInterface(
@@ -79,5 +78,9 @@ public class Activator extends ComponentActivatorAbstractBase {
                     new String[] { PortDataClient.class.getName()}, null);
             logger.debug("Registered LocalPortDataClient.");
         }
+
+        // TODO(tomohiko) Make the config file path configurable.
+        ZkCluster.startCluster("/home/dev/mido/midonet/midolman/conf/midolman.conf");
+        logger.info("Started a ZkCluster.");
     }
 }
