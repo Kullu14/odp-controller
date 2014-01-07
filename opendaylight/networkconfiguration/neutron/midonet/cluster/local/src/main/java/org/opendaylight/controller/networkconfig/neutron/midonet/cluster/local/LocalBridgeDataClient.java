@@ -36,10 +36,10 @@ public class LocalBridgeDataClient implements BridgeDataClient {
             try {
                 dataClient.bridgesCreate(bridge);
                 bridgeUuid = bridge.getId();
+                logger.debug("Successfully created a bridge.");
             } catch (Exception e) {
-                logger.warn("Failed to create a bridge.");
+                logger.warn("Failed to create a bridge. {}", e);
             }
-            return bridge.getId();
         }
         return bridgeUuid;
     }
