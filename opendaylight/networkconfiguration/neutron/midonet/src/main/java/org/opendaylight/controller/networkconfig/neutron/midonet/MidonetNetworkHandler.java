@@ -23,13 +23,18 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
 
     @Override
     public int canCreateNetwork(NeutronNetwork network) {
-        logger.debug("MidonetNetworkHandler.canCreateNetwork: " +
-                     network.getID());
+        logger.debug("MidonetNetworkHandler.canCreateNetwork: ID={}, name={}",
+                     network.getID(), network.getNetworkName());
+        if (network.getNetworkName() == null ||
+            network.getNetworkName().isEmpty()) {
+            logger.warn("Network name cannot be empty.");
+            return 400;
+        }
 
         Object service = ServiceHelper.getGlobalInstance(
                 BridgeDataClient.class, this);
         if (service != null) {
-            logger.warn("Found a BridgeDataClient impl.");
+            logger.debug("Found a BridgeDataClient impl.");
             this.dataClient = (BridgeDataClient) service;
         } else {
             logger.warn("Cannot look up BridgeDataClient impl.");
@@ -37,6 +42,7 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
         }
 
         Bridge bridge = new Bridge();
+        bridge.setName(network.getNetworkName());
         try {
             dataClient.bridgesCreate(bridge);
         } catch (StateAccessException e) {
