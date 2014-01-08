@@ -765,11 +765,13 @@
       <artifactId>networkconfig.neutron</artifactId>
       <version>${controller.version}</version>
     </dependency>
+    <!--  Use our own CRUD implementations
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>networkconfig.neutron.implementation</artifactId>
       <version>${controller.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>networkconfig.neutron.midonet</artifactId>

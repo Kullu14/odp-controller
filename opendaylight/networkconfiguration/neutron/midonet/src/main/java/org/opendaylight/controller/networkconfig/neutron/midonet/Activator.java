@@ -5,11 +5,11 @@
 package org.opendaylight.controller.networkconfig.neutron.midonet;
 
 import org.apache.felix.dm.Component;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
+import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
+import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
-import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 
 public class Activator extends ComponentActivatorAbstractBase {
     protected static final Logger logger = LoggerFactory
@@ -44,7 +44,10 @@ public class Activator extends ComponentActivatorAbstractBase {
      * Object
      */
     public Object[] getImplementations() {
-        Object[] res = { MidonetNetworkHandler.class };
+        Object[] res = {
+                MidoNetNetworkAware.class,
+                MidoNetNetworkCRUD.class
+                };
         return res;
     }
 
@@ -64,10 +67,17 @@ public class Activator extends ComponentActivatorAbstractBase {
     public void configureInstance(Component c,
                                   Object imp,
                                   String containerName) {
-        if (imp.equals(MidonetNetworkHandler.class)) {
-            // export the service
+        if (imp.equals(MidoNetNetworkAware.class)) {
             c.setInterface(
                     new String[] { INeutronNetworkAware.class.getName()}, null);
+        }
+        if (imp.equals(MidoNetNetworkCRUD.class)) {
+            c.setInterface(
+                    new String[] { INeutronNetworkCRUD.class.getName()}, null);
+        }
+        if (imp.equals(MidoNetNetworkCRUD.class)) {
+            c.setInterface(
+                    new String[] { INeutronNetworkCRUD.class.getName() }, null);
         }
     }
 }
