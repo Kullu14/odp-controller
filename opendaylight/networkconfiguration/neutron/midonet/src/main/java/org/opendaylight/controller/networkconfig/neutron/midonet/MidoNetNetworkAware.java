@@ -4,21 +4,19 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet;
 
-import org.midonet.cluster.data.Bridge;
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
 import org.opendaylight.controller.networkconfig.neutron.NeutronNetwork;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
 import org.opendaylight.controller.sal.utils.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MidonetNetworkHandler implements INeutronNetworkAware {
-    private static final Logger logger = LoggerFactory.getLogger(MidonetNetworkHandler.class);
+public class MidoNetNetworkAware implements INeutronNetworkAware {
+    private static final Logger logger = LoggerFactory.getLogger(MidoNetNetworkAware.class);
 
     BridgeDataClient dataClient;
 
-    public MidonetNetworkHandler() {
+    public MidoNetNetworkAware() {
     }
 
     @Override
@@ -27,30 +25,19 @@ public class MidonetNetworkHandler implements INeutronNetworkAware {
                      network.getID(), network.getNetworkName());
         if (network.getNetworkName() == null ||
             network.getNetworkName().isEmpty()) {
-            logger.warn("Network name cannot be empty.");
-            return 400;
+            logger.warn("Returning 400/BAD REQUEST. Network name cannot be " +
+                        "empty.");
+            return 400;  // BAD REQUEST
         }
 
         Object service = ServiceHelper.getGlobalInstance(
                 BridgeDataClient.class, this);
-        if (service != null) {
-            logger.debug("Found a BridgeDataClient impl.");
-            this.dataClient = (BridgeDataClient) service;
-        } else {
-            logger.warn("Cannot look up BridgeDataClient impl.");
-            return 500;
+        if (service == null) {
+            logger.warn("Returning 503/SERVICE UNAVAILABLE. Cannot look up " +
+                        "BridgeDataClient impl.");
+            return 503;  // SERVICE UNAVAILABLE
         }
 
-        Bridge bridge = new Bridge();
-        bridge.setName(network.getNetworkName());
-        try {
-            dataClient.bridgesCreate(bridge);
-        } catch (StateAccessException e) {
-            logger.error("Failed to create a network.");
-            return 500;
-        }
-
-        network.setNetworkUUID(bridge.getId().toString());
         return 200;
     }
 
