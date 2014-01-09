@@ -19,6 +19,25 @@ public class MidoNetNetworkAware implements INeutronNetworkAware {
     public MidoNetNetworkAware() {
     }
 
+    /**
+     * Looks up a MidoNet DataClient service sets it to dataClient.
+     * @return True if it finds the service, and false otherwise.
+     */
+    private boolean lookUpDataClient() {
+        this.dataClient = null;
+        Object service = ServiceHelper.getGlobalInstance(
+                BridgeDataClient.class, this);
+
+        if (service == null) {
+            logger.warn("Failed to look up BridgeDataClient impl.");
+            return false;
+        }
+
+        logger.debug("Found a BridgeDataClient impl.");
+        this.dataClient = (BridgeDataClient) service;
+        return true;
+    }
+
     @Override
     public int canCreateNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canCreateNetwork: ID={}, name={}",
@@ -30,12 +49,26 @@ public class MidoNetNetworkAware implements INeutronNetworkAware {
             return 400;  // BAD REQUEST
         }
 
-        Object service = ServiceHelper.getGlobalInstance(
-                BridgeDataClient.class, this);
-        if (service == null) {
+        this.lookUpDataClient();
+        if (this.dataClient == null) {
             logger.warn("Returning 503/SERVICE UNAVAILABLE. Cannot look up " +
                         "BridgeDataClient impl.");
             return 503;  // SERVICE UNAVAILABLE
+        }
+
+        try {
+            if (this.dataClient.bridgesGetByName(
+                    network.getTenantID(), network.getNetworkName()) != null) {
+                logger.warn("Returning 400/BAD REQUEST. Tenant ID / network " +
+                            "must be unique.");
+                return 400;  // BAD REQUEST
+            }
+            logger.debug("No bridge with tenant ID / name: {} / {}",
+                         network.getTenantID(), network.getNetworkName());
+        } catch (Exception e) {
+            logger.warn("Failed to get a bridge by tenant ID / name: {}, {}",
+                        network.getTenantID(), network.getNetworkName());
+            return 500;  // SERVER INTERNAL ERROR
         }
 
         return 200;
@@ -51,6 +84,12 @@ public class MidoNetNetworkAware implements INeutronNetworkAware {
     public int canUpdateNetwork(NeutronNetwork delta, NeutronNetwork original) {
         logger.debug("MidonetNetworkHandler.canUpdateNetwork: " +
                      original.getID());
+        this.lookUpDataClient();
+        if (this.dataClient == null) {
+            logger.warn("Returning 503/SERVICE UNAVAILABLE. Cannot look up " +
+                        "BridgeDataClient impl.");
+            return 503;  // SERVICE UNAVAILABLE
+        }
         return 200;
     }
 
@@ -64,6 +103,12 @@ public class MidoNetNetworkAware implements INeutronNetworkAware {
     public int canDeleteNetwork(NeutronNetwork network) {
         logger.debug("MidonetNetworkHandler.canDeleteNetwork: " +
                      network.getID());
+        this.lookUpDataClient();
+        if (this.dataClient == null) {
+            logger.warn("Returning 503/SERVICE UNAVAILABLE. Cannot look up " +
+                        "BridgeDataClient impl.");
+            return 503;  // SERVICE UNAVAILABLE
+        }
         return 200;
     }
 

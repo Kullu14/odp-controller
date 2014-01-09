@@ -4,35 +4,61 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.midonet.cluster.DataClient;
 import org.midonet.cluster.data.Bridge;
 import org.midonet.midolman.ZkCluster;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.BridgeDataClient;
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class LocalBridgeDataClient implements BridgeDataClient {
     private static final Logger logger = LoggerFactory.getLogger(LocalBridgeDataClient.class);
+    private DataClient dataClient = null;
 
-    public boolean bridgeExists(UUID id) throws StateAccessException {
+    private void initDataClient() {
+        if (this.dataClient == null) {
+            this.dataClient = ZkCluster.getClusterClient();
+        }
+    }
+
+    public boolean bridgeExists(UUID bridgeId) {
+        this.initDataClient();
+        try {
+            return this.dataClient.bridgeExists(bridgeId);
+        } catch (Exception e) {
+            logger.warn("Failed to tests existance of a bridge by ID. {}", e);
+        }
         return false;
     }
 
-    public Bridge bridgesGet(UUID id) throws StateAccessException {
-        return null;
+    public Bridge bridgesGet(UUID bridgeId) {
+        this.initDataClient();
+        Bridge bridge = null;
+        try {
+            bridge = this.dataClient.bridgesGet(bridgeId);
+        } catch (Exception e) {
+            logger.warn("Failed to retrieve a bridge with a given ID. {}", e);
+        }
+        return bridge;
     }
 
-    public void bridgesDelete(UUID id) throws StateAccessException {
+    public void bridgesDelete(UUID bridgeId) {
+        this.initDataClient();
+        try {
+            this.dataClient.bridgesDelete(bridgeId);
+        } catch (Exception e) {
+            logger.warn("Failed to delete a bridge with a given ID. {}", e);
+        }
     }
 
-    public UUID bridgesCreate(Bridge bridge) throws StateAccessException {
+    public UUID bridgesCreate(Bridge bridge) {
         UUID bridgeUuid = null;
         if (bridge != null) {
-            DataClient dataClient = ZkCluster.getClusterClient();
+            this.initDataClient();
             try {
                 dataClient.bridgesCreate(bridge);
                 bridgeUuid = bridge.getId();
@@ -44,12 +70,38 @@ public class LocalBridgeDataClient implements BridgeDataClient {
         return bridgeUuid;
     }
 
-    public Bridge bridgesGetByName(String tenantId, String name)
-            throws StateAccessException {
-        return null;
+    public Bridge bridgesGetByName(String tenantId, String name) {
+        Bridge bridge = null;
+        this.initDataClient();
+        try {
+            bridge = this.dataClient.bridgesGetByName(tenantId, name);
+        } catch (Exception e) {
+            logger.warn("Failed to get a bridge by tenant_id / name, {}", e);
+        }
+        return bridge;
     }
 
-    public void bridgesUpdate(Bridge bridge) throws StateAccessException {
-        return;
+    public boolean bridgesUpdate(Bridge bridge) {
+        this.initDataClient();
+        try {
+            this.dataClient.bridgesUpdate(bridge);
+        } catch (Exception e) {
+            logger.warn("Failed to update a bridge, {}", e);
+            return false;
+        }
+        return true;
+    }
+
+    public List<Bridge> bridgesGetAll() {
+        this.initDataClient();
+        List<Bridge> bridges = null;
+        try {
+            bridges = this.dataClient.bridgesGetAll();
+            logger.debug("Successfully retrieved all bridges with size {}.",
+                         bridges.size());
+        } catch (Exception e) {
+            logger.warn("Failed to list all bridges. {}", e);
+        }
+        return bridges;
     }
 }
