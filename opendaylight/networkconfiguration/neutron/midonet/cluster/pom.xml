@@ -62,9 +62,14 @@
   </build>
   <dependencies>
     <dependency>
+      <!-- midolman-with-dependencies is a jar which includes all midolman
+           external dependencies, see midonet project for build instruction.
+           This jar is not published in public maven repositories. Instead you
+           have to install it locally on you artifact repository with the
+           $ mvn install:install-file command. -->
       <groupId>org.midonet</groupId>
       <artifactId>midolman-with-dependencies</artifactId>
-      <version>1.0</version>
+      <version>1.3.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
