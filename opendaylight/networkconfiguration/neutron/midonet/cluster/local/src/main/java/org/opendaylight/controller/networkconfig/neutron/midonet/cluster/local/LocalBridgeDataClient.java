@@ -4,6 +4,7 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,16 +18,20 @@ import org.slf4j.LoggerFactory;
 
 public class LocalBridgeDataClient implements BridgeDataClient {
     private static final Logger logger = LoggerFactory.getLogger(LocalBridgeDataClient.class);
-    private DataClient dataClient = null;
+    private volatile DataClient dataClient = null;
 
-    private void initDataClient() {
+    private void ensureDataClient() {
         if (this.dataClient == null) {
-            this.dataClient = ZkCluster.getClusterClient();
+            synchronized (this) {
+                if (this.dataClient == null) {
+                    this.dataClient = ZkCluster.getClusterClient();
+                }
+            }
         }
     }
 
     public boolean bridgeExists(UUID bridgeId) {
-        this.initDataClient();
+        this.ensureDataClient();
         try {
             return this.dataClient.bridgeExists(bridgeId);
         } catch (Exception e) {
@@ -36,7 +41,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     }
 
     public Bridge bridgesGet(UUID bridgeId) {
-        this.initDataClient();
+        this.ensureDataClient();
         Bridge bridge = null;
         try {
             bridge = this.dataClient.bridgesGet(bridgeId);
@@ -47,7 +52,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     }
 
     public void bridgesDelete(UUID bridgeId) {
-        this.initDataClient();
+        this.ensureDataClient();
         try {
             this.dataClient.bridgesDelete(bridgeId);
         } catch (Exception e) {
@@ -58,7 +63,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     public UUID bridgesCreate(Bridge bridge) {
         UUID bridgeUuid = null;
         if (bridge != null) {
-            this.initDataClient();
+            this.ensureDataClient();
             try {
                 dataClient.bridgesCreate(bridge);
                 bridgeUuid = bridge.getId();
@@ -72,7 +77,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
 
     public Bridge bridgesGetByName(String tenantId, String name) {
         Bridge bridge = null;
-        this.initDataClient();
+        this.ensureDataClient();
         try {
             bridge = this.dataClient.bridgesGetByName(tenantId, name);
         } catch (Exception e) {
@@ -82,7 +87,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     }
 
     public boolean bridgesUpdate(Bridge bridge) {
-        this.initDataClient();
+        this.ensureDataClient();
         try {
             this.dataClient.bridgesUpdate(bridge);
         } catch (Exception e) {
@@ -93,7 +98,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
     }
 
     public List<Bridge> bridgesGetAll() {
-        this.initDataClient();
+        this.ensureDataClient();
         List<Bridge> bridges = null;
         try {
             bridges = this.dataClient.bridgesGetAll();
@@ -101,6 +106,7 @@ public class LocalBridgeDataClient implements BridgeDataClient {
                          bridges.size());
         } catch (Exception e) {
             logger.warn("Failed to list all bridges. {}", e);
+            bridges = new ArrayList<Bridge>();
         }
         return bridges;
     }

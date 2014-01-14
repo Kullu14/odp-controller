@@ -19,25 +19,21 @@ import org.slf4j.LoggerFactory;
 public class MidoNetNetworkCRUD implements INeutronNetworkCRUD {
     private static final Logger logger = LoggerFactory.getLogger(MidoNetNetworkCRUD.class);
 
-    private BridgeDataClient dataClient = null;
-
     /**
-     * Looks up a MidoNet DataClient service and sets it to dataClient.
-     * @return True if it finds the service, and false otherwise.
+     * Looks up a MidoNet DataClient service and returns it if one is available.
+     * @return A BridgeDataClient service if one is available, and null if not.
      */
-    private boolean lookUpDataClient() {
-        this.dataClient = null;
+    private BridgeDataClient lookUpDataClient() {
         Object service = ServiceHelper.getGlobalInstance(
                 BridgeDataClient.class, this);
 
         if (service == null) {
             logger.warn("Failed to look up BridgeDataClient impl.");
-            return false;
+            return null;
         }
 
         logger.debug("Found a BridgeDataClient impl.");
-        this.dataClient = (BridgeDataClient) service;
-        return true;
+        return (BridgeDataClient) service;
     }
 
     private void populateNeutronNetwork(Bridge bridge, NeutronNetwork network) {
@@ -67,21 +63,23 @@ public class MidoNetNetworkCRUD implements INeutronNetworkCRUD {
         if (uuid == null || uuid.isEmpty()) {
             return false;
         }
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return false;
         }
 
-        return this.dataClient.bridgeExists(UUID.fromString(uuid));
+        return dataClient.bridgeExists(UUID.fromString(uuid));
     }
 
     @Override
     public NeutronNetwork getNetwork(String uuid) {
         NeutronNetwork network = new NeutronNetwork();
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return network;
         }
 
-        Bridge bridge = this.dataClient.bridgesGet(UUID.fromString(uuid));
+        Bridge bridge = dataClient.bridgesGet(UUID.fromString(uuid));
         if (bridge != null) {
             populateNeutronNetwork(bridge, network);
         }
@@ -90,10 +88,11 @@ public class MidoNetNetworkCRUD implements INeutronNetworkCRUD {
 
     @Override
     public List<NeutronNetwork> getAllNetworks() {
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return new ArrayList<NeutronNetwork>();
         }
-        List<Bridge> bridges = this.dataClient.bridgesGetAll();
+        List<Bridge> bridges = dataClient.bridgesGetAll();
 
         List<NeutronNetwork> neutronNetworks = new ArrayList<NeutronNetwork>();
         if (bridges != null) {
@@ -108,7 +107,8 @@ public class MidoNetNetworkCRUD implements INeutronNetworkCRUD {
 
     @Override
     public boolean addNetwork(NeutronNetwork input) {
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return false;
         }
 
@@ -127,21 +127,23 @@ public class MidoNetNetworkCRUD implements INeutronNetworkCRUD {
 
     @Override
     public boolean removeNetwork(String uuid) {
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return false;
         }
 
-        this.dataClient.bridgesDelete(UUID.fromString(uuid));
+        dataClient.bridgesDelete(UUID.fromString(uuid));
         return true;
     }
 
     @Override
     public boolean updateNetwork(String uuid, NeutronNetwork delta) {
-        if (!this.lookUpDataClient()) {
+        BridgeDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
             return false;
         }
 
-        Bridge bridge = this.dataClient.bridgesGet(UUID.fromString(uuid));
+        Bridge bridge = dataClient.bridgesGet(UUID.fromString(uuid));
         if (bridge == null) {
             return false;
         }
