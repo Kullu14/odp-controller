@@ -9,13 +9,13 @@ import org.midonet.cluster.data.Port;
 
 
 public interface PortDataClient {
-    boolean portsExists(UUID id) throws StateAccessException;
+    boolean portsExists(UUID id);
 
-    UUID portsCreate(Port<?,?> port) throws StateAccessException;
+    UUID portsCreate(Port<?,?> port);
 
-    void portsDelete(UUID id) throws StateAccessException;
+    void portsDelete(UUID id);
 
-    Port<?,?> portsGet(UUID id) throws StateAccessException;
+    Port<?,?> portsGet(UUID id);
 
-    void portsUpdate(Port<?,?> port) throws StateAccessException;
+    void portsUpdate(Port<?,?> port);
 }

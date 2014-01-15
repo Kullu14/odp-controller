@@ -8,28 +8,27 @@ import java.util.UUID;
 
 import org.midonet.cluster.data.Port;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
-import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.StateAccessException;
 
 
 public class LocalPortDataClient implements PortDataClient {
-    public boolean portsExists(UUID id) throws StateAccessException {
+    public boolean portsExists(UUID id) {
         return false;
     }
 
-    public UUID portsCreate(Port<?,?> port) throws StateAccessException {
+    public UUID portsCreate(Port<?,?> port) {
         return null;
     }
 
-    public void portsDelete(UUID id) throws StateAccessException {
+    public void portsDelete(UUID id) {
         return;
     }
 
-    public Port<?,?> portsGet(UUID id) throws StateAccessException {
+    public Port<?,?> portsGet(UUID id) {
         return null;
     }
 
     @Override
-    public void portsUpdate(Port<?,?> port) throws StateAccessException {
+    public void portsUpdate(Port<?,?> port) {
         return;
     }
 }
