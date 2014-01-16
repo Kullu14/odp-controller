@@ -8,11 +8,30 @@ import java.util.List;
 
 import org.opendaylight.controller.networkconfig.neutron.INeutronPortCRUD;
 import org.opendaylight.controller.networkconfig.neutron.NeutronPort;
+import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
+import org.opendaylight.controller.sal.utils.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MidoNetPortCRUD implements INeutronPortCRUD {
     private static final Logger logger = LoggerFactory.getLogger(MidoNetPortCRUD.class);
+
+    /**
+     * Looks up a MidoNet DataClient service and returns it if one is available.
+     * @return A PortDataClient service if one is available, and null if not.
+     */
+    private PortDataClient lookUpDataClient() {
+        Object service = ServiceHelper.getGlobalInstance(
+                PortDataClient.class, this);
+
+        if (service == null) {
+            logger.warn("Failed to look up PortDataClient impl.");
+            return null;
+        }
+
+        logger.debug("Found a PortDataClient impl.");
+        return (PortDataClient) service;
+    }
 
     @Override
     public boolean portExists(String uuid) {
@@ -41,7 +60,9 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
                      "network_id={}",
                      input.getTenantID(),
                      input.getNetworkUUID());
-        // TODO Auto-generated method stub
+        PortDataClient dataClient = this.lookUpDataClient();
+        // TODO Implement port data construction.
+        dataClient.portsCreate(null);
         return false;
     }
 
