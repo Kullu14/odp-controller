@@ -37,7 +37,10 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
 
     @Override
     public boolean addPort(NeutronPort input) {
-        logger.debug("MidoNetPortCRUD.addPort was called.");
+        logger.debug("MidoNetPortCRUD.addPort was called. tenant_id={}, " +
+                     "network_id={}",
+                     input.getTenantID(),
+                     input.getNetworkUUID());
         // TODO Auto-generated method stub
         return false;
     }
