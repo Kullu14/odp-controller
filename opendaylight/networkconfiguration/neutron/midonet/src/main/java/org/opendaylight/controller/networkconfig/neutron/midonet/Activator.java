@@ -7,6 +7,7 @@ package org.opendaylight.controller.networkconfig.neutron.midonet;
 import org.apache.felix.dm.Component;
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkAware;
 import org.opendaylight.controller.networkconfig.neutron.INeutronNetworkCRUD;
+import org.opendaylight.controller.networkconfig.neutron.INeutronPortCRUD;
 import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,8 @@ public class Activator extends ComponentActivatorAbstractBase {
     public Object[] getImplementations() {
         Object[] res = {
                 MidoNetNetworkAware.class,
-                MidoNetNetworkCRUD.class
+                MidoNetNetworkCRUD.class,
+                MidoNetPortCRUD.class
                 };
         return res;
     }
@@ -74,6 +76,10 @@ public class Activator extends ComponentActivatorAbstractBase {
         if (imp.equals(MidoNetNetworkCRUD.class)) {
             c.setInterface(
                     new String[] { INeutronNetworkCRUD.class.getName()}, null);
+        }
+        if (imp.equals(MidoNetPortCRUD.class)) {
+            c.setInterface(
+                    new String[] { INeutronPortCRUD.class.getName()}, null);
         }
     }
 }
