@@ -26,7 +26,7 @@ public class LocalPortDataClientTest {
 
     @Before
     public void setUp() throws Exception {
-        ZkCluster.startCluster("/home/dev/mido/midonet/midolman/conf/midolman.conf");
+        ZkCluster.startCluster("./midolman.conf");
         this.portDataClient = new LocalPortDataClient();
     }
 

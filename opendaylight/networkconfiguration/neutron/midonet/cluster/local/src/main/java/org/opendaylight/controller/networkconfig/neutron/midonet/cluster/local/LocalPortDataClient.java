@@ -37,7 +37,7 @@ public class LocalPortDataClient implements PortDataClient {
     }
 
     public UUID portsCreate(final Port<?,?> port) {
-        logger.info("Creating a port for device id = {}", port.getDeviceId());
+        logger.debug("Creating a port for device id = {}", port.getDeviceId());
         this.ensureDataClient();
         UUID portId = null;
         try {
@@ -45,7 +45,7 @@ public class LocalPortDataClient implements PortDataClient {
         } catch (Exception e) {
             logger.warn("Failed to create a port: {}", e);
         }
-        logger.info("Created a port: {}", portId);
+        logger.debug("Created a port: {}", portId);
         return portId;
     }
 
