@@ -23,6 +23,7 @@
               org.apache.commons.net.util,
               org.apache.felix.dm,
               org.midonet.cluster.data,
+              org.midonet.cluster.data.ports,
               org.opendaylight.controller.clustering.services,
               org.opendaylight.controller.networkconfig.neutron,
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster,

@@ -5,7 +5,9 @@ package org.opendaylight.controller.networkconfig.neutron.midonet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import org.midonet.cluster.data.ports.BridgePort;
 import org.opendaylight.controller.networkconfig.neutron.INeutronPortCRUD;
 import org.opendaylight.controller.networkconfig.neutron.NeutronPort;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
@@ -61,9 +63,10 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
                      input.getTenantID(),
                      input.getNetworkUUID());
         PortDataClient dataClient = this.lookUpDataClient();
-        // TODO Implement port data construction.
-        dataClient.portsCreate(null);
-        return false;
+        BridgePort bridgePort = new BridgePort();
+        bridgePort.setDeviceId(UUID.fromString(input.getNetworkUUID()));
+        UUID portId = dataClient.portsCreate(bridgePort);
+        return portId != null;
     }
 
     @Override

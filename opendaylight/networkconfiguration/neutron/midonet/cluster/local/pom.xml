@@ -130,7 +130,8 @@
             </Import-Package>
             <Export-Package>
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local,
-              org.midonet.cluster.data
+              org.midonet.cluster.data,
+              org.midonet.cluster.data.ports
             </Export-Package>
             <Bundle-Activator>
               org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local.Activator
@@ -165,8 +166,8 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-     <groupId>junit</groupId>
-     <artifactId>junit</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
 
