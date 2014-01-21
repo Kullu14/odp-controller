@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Test;
+// import org.junit.Test;
 import org.midonet.cluster.data.Port;
 import org.midonet.cluster.data.ports.BridgePort;
 import org.midonet.midolman.ZkCluster;
@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests ZooKeeper port data CRUD operations.
+ *
+ * WARNING: Not a real "unit" test. Removed the Junit annotation and disabled for now.
  */
 public class LocalPortDataClientTest {
     private static final Logger logger =
@@ -30,7 +32,6 @@ public class LocalPortDataClientTest {
         this.portDataClient = new LocalPortDataClient();
     }
 
-    @Test
     public void testPortsCreate() {
         logger.info("Testing createPort().");
         assertNotNull(this.portDataClient);
