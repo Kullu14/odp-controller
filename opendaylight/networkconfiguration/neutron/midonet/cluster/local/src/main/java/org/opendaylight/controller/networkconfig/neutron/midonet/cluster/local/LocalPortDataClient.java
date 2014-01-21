@@ -105,15 +105,41 @@ public class LocalPortDataClient implements PortDataClient {
     }
 
     public void portsDelete(UUID id) {
-        return;
+        logger.debug("Deleting a port; id = {}", id);
+        this.ensureDataClient();
+        try {
+            this.dataClient.portsDelete(id);
+            logger.debug("Deleted a port.");
+        } catch (Exception e) {
+            logger.warn("Failure in deleting a port: {}", e);
+        }
     }
 
     public Port<?,?> portsGet(UUID id) {
-        return null;
+        logger.debug("Getting port info; id = {}", id);
+        this.ensureDataClient();
+        Port<?, ?> port = null;
+        try {
+            port = this.dataClient.portsGet(id);
+        } catch (Exception e) {
+            logger.warn("Failed to get the port info for id = {}", id);
+        }
+        return port;
     }
 
     @Override
-    public void portsUpdate(Port<?,?> port) {
-        return;
+    public boolean portsUpdate(Port<?,?> port) {
+        logger.debug("Updating a port for device id = {}, port id = {}",
+                     port.getDeviceId(), port.getId());
+        this.ensureDataClient();
+        boolean updated = false;
+        try {
+            this.dataClient.portsUpdate(port);
+            logger.warn("Updated a port, id={}", port.getId());
+            updated = true;
+        } catch (Exception e) {
+            logger.warn("Failed to update a port, id={}", port.getId());
+        }
+        return updated;
     }
 }

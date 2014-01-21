@@ -25,5 +25,5 @@ public interface PortDataClient {
 
     public Port<?,?> portsGet(UUID id);
 
-    public void portsUpdate(Port<?,?> port);
+    public boolean portsUpdate(Port<?,?> port);
 }

@@ -37,6 +37,31 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
         return (PortDataClient) service;
     }
 
+    private void populateNeutronPort(Port<?, ?> midoNetPort,
+                                     UUID tenantId,
+                                     NeutronPort neutronPort) {
+        neutronPort.setNetworkUUID(midoNetPort.getDeviceId().toString());
+        neutronPort.setPortUUID(midoNetPort.getId().toString());
+        if (tenantId != null) {
+            neutronPort.setTenantID(tenantId.toString());
+        }
+        neutronPort.setAdminStateUp(midoNetPort.isAdminStateUp());
+        // TODO(tomohiko) Copy more fields.
+    }
+
+    private void populateMidoNetPort(NeutronPort neutronPort,
+                                     Port<?, ?> midoNetPort) {
+        midoNetPort.setDeviceId(UUID.fromString(neutronPort.getNetworkUUID()));
+        midoNetPort.setAdminStateUp(neutronPort.isAdminStateUp());
+        // TODO(tomohiko) Copy more fields.
+    }
+
+    private void populateNeutronPortDelta(NeutronPort delta,
+                                          Port<?, ?> midoNetPort) {
+        midoNetPort.setAdminStateUp(delta.isAdminStateUp());
+        // TODO(tomohiko) Copy more fields.
+    }
+
     @Override
     public boolean portExists(String uuid) {
         logger.debug("MidoNetPortCRUD.portExists was called. uuid={}", uuid);
@@ -50,8 +75,17 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
     @Override
     public NeutronPort getPort(String uuid) {
         logger.debug("MidoNetPortCRUD.getPort was called. uuid={}", uuid);
-        // TODO Auto-generated method stub
-        return null;
+        NeutronPort neutronPort = null;
+        PortDataClient dataClient = this.lookUpDataClient();
+        if (dataClient != null) {
+            Port<?, ?> midoNetPort = dataClient.portsGet(UUID.fromString(uuid));
+            if (midoNetPort != null) {
+                neutronPort = new NeutronPort();
+                // TODO(tomohiko) Retrieve and pass tenant ID.
+                populateNeutronPort(midoNetPort, null, neutronPort);
+            }
+        }
+        return neutronPort;
     }
 
     @Override
@@ -64,12 +98,10 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
                     dataClient.portsGetAll();
             for (Map.Entry<UUID, List<Port<?, ?>>> tenantEntry :
                  tenantPortsList.entrySet()) {
-                String tenantId = tenantEntry.getKey().toString();
+                UUID tenantId = tenantEntry.getKey();
                 for (Port<?, ?> port : tenantEntry.getValue()) {
                     NeutronPort neutronPort = new NeutronPort();
-                    neutronPort.setNetworkUUID(port.getDeviceId().toString());
-                    neutronPort.setPortUUID(port.getId().toString());
-                    neutronPort.setTenantID(tenantId);
+                    this.populateNeutronPort(port, tenantId, neutronPort);
                     neutronPorts.add(neutronPort);
                 }
             }
@@ -87,7 +119,7 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
         UUID portId = null;
         if (dataClient != null) {
             BridgePort bridgePort = new BridgePort();
-            bridgePort.setDeviceId(UUID.fromString(input.getNetworkUUID()));
+            this.populateMidoNetPort(input, bridgePort);
             portId = dataClient.portsCreate(bridgePort);
         }
         return portId != null;
@@ -97,22 +129,39 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
     public boolean removePort(String uuid) {
         logger.debug("MidoNetPortCRUD.removePort was called: uuid={}",
                      uuid);
-        // TODO Auto-generated method stub
-        return false;
+        PortDataClient dataClient = this.lookUpDataClient();
+        if (dataClient == null) {
+            return false;
+        }
+        dataClient.portsDelete(UUID.fromString(uuid));
+        return true;
     }
 
     @Override
     public boolean updatePort(String uuid, NeutronPort delta) {
         logger.debug("MidoNetPortCRUD.updatePort was called: " +
                      "uuid={}", uuid);
-        // TODO Auto-generated method stub
-        return false;
+        PortDataClient dataClient = this.lookUpDataClient();
+        boolean updated = false;
+        if (dataClient != null) {
+            // TODO(tomohiko) Need to look up the device to see if it's really
+            // a bridge or router.
+            Port<?, ?> port = dataClient.portsGet(UUID.fromString(uuid));
+            if (port == null) {
+                logger.debug("The port to be updated did not exist.");
+            } else {
+                this.populateNeutronPortDelta(delta, port);
+                updated = dataClient.portsUpdate(port);
+                logger.debug("Updated the port: {}", updated);
+            }
+        }
+        return updated;
     }
 
     @Override
     public boolean macInUse(String macAddress) {
         logger.debug("MidoNetPortCRUD.macInUse was called: mac={}", macAddress);
-        // TODO Auto-generated method stub
+        // Not implemented.
         return false;
     }
 
@@ -120,7 +169,7 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
     public NeutronPort getGatewayPort(String subnetUUID) {
         logger.debug("MidoNetPortCRUD.getGatewayPort was called: subnet " +
                      "uuid={}", subnetUUID);
-        // TODO Auto-generated method stub
+        // Not implemented.
         return null;
     }
 
