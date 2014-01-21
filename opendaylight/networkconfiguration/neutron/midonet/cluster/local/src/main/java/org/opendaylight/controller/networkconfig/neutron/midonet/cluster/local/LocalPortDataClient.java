@@ -4,11 +4,18 @@
 
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster.local;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.midonet.cluster.DataClient;
+import org.midonet.cluster.data.Bridge;
 import org.midonet.cluster.data.Port;
+import org.midonet.cluster.data.ports.BridgePort;
 import org.midonet.midolman.ZkCluster;
+import org.mortbay.log.Log;
 import org.opendaylight.controller.networkconfig.neutron.midonet.cluster.PortDataClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +39,56 @@ public class LocalPortDataClient implements PortDataClient {
             }
         }
     }
+
     public boolean portsExists(UUID id) {
-        return false;
+        this.ensureDataClient();
+        try {
+            return this.dataClient.portsExists(id);
+        } catch (Exception e) {
+            logger.warn("Failed to test port existence: {}", e);
+            return false;
+        }
+    }
+
+    public Map<UUID, List<Port<?, ?>>> portsGetAll() {
+        logger.info("LocalPortDataClient.portsGetAll() was called.");
+        this.ensureDataClient();
+        List<Bridge> bridges = null;
+        try {
+            bridges = this.dataClient.bridgesGetAll();
+            Log.debug("Retrieved {} bridges.", bridges.size());
+        } catch (Exception e) {
+            logger.warn("Failed to get all bridges: {}", e);
+        }
+
+        Map<UUID, List<Port<?,?>>> tenantPortsList =
+                new TreeMap<UUID, List<Port<?, ?>>>();
+        if (bridges != null) {
+            for (Bridge bridge : bridges) {
+                try {
+                    List<BridgePort> bridgePorts =
+                           this.dataClient.portsFindByBridge(bridge.getId());
+                    logger.debug("{} bridge ports for bridge {}.",
+                                 bridgePorts.size(),
+                                 bridge.getId());
+
+                    String tenantId = bridge.getProperty(
+                            Bridge.Property.tenant_id);
+                    UUID tenantUuid = UUID.fromString(tenantId);
+                    List<Port<?, ?>> tenantPorts =
+                            tenantPortsList.get(tenantUuid);
+                    if (tenantPorts == null) {
+                        tenantPorts = new ArrayList<Port<?, ?>>(bridgePorts);
+                        tenantPortsList.put(tenantUuid, tenantPorts);
+                    } else {
+                        tenantPorts.addAll(bridgePorts);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to get ports by bridge: {}", e);
+                }
+            }
+        }
+        return tenantPortsList;
     }
 
     public UUID portsCreate(final Port<?,?> port) {

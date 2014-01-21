@@ -3,6 +3,8 @@
  */
 package org.opendaylight.controller.networkconfig.neutron.midonet.cluster;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.midonet.cluster.data.Port;
@@ -11,11 +13,17 @@ import org.midonet.cluster.data.Port;
 public interface PortDataClient {
     boolean portsExists(UUID id);
 
-    UUID portsCreate(Port<?,?> port);
+    /**
+     * Returns a list of ports for each tenant.
+     * @return A map from a tenant ID to the tenant's ports.
+     */
+    public Map<UUID, List<Port<?, ?>>> portsGetAll();
 
-    void portsDelete(UUID id);
+    public UUID portsCreate(Port<?,?> port);
 
-    Port<?,?> portsGet(UUID id);
+    public void portsDelete(UUID id);
 
-    void portsUpdate(Port<?,?> port);
+    public Port<?,?> portsGet(UUID id);
+
+    public void portsUpdate(Port<?,?> port);
 }

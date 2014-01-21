@@ -5,8 +5,10 @@ package org.opendaylight.controller.networkconfig.neutron.midonet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import org.midonet.cluster.data.Port;
 import org.midonet.cluster.data.ports.BridgePort;
 import org.opendaylight.controller.networkconfig.neutron.INeutronPortCRUD;
 import org.opendaylight.controller.networkconfig.neutron.NeutronPort;
@@ -38,7 +40,10 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
     @Override
     public boolean portExists(String uuid) {
         logger.debug("MidoNetPortCRUD.portExists was called. uuid={}", uuid);
-        // TODO Auto-generated method stub
+        PortDataClient dataClient = this.lookUpDataClient();
+        if (dataClient != null) {
+            return dataClient.portsExists(UUID.fromString(uuid));
+        }
         return false;
     }
 
@@ -52,8 +57,24 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
     @Override
     public List<NeutronPort> getAllPorts() {
         logger.debug("MidoNetPortCRUD.getAllPorts was called.");
-        // TODO Auto-generated method stub
-        return new ArrayList<NeutronPort>();
+        PortDataClient dataClient = this.lookUpDataClient();
+        List<NeutronPort> neutronPorts = new ArrayList<NeutronPort>();
+        if (dataClient != null) {
+            Map<UUID, List<Port<?, ?>>> tenantPortsList =
+                    dataClient.portsGetAll();
+            for (Map.Entry<UUID, List<Port<?, ?>>> tenantEntry :
+                 tenantPortsList.entrySet()) {
+                String tenantId = tenantEntry.getKey().toString();
+                for (Port<?, ?> port : tenantEntry.getValue()) {
+                    NeutronPort neutronPort = new NeutronPort();
+                    neutronPort.setNetworkUUID(port.getDeviceId().toString());
+                    neutronPort.setPortUUID(port.getId().toString());
+                    neutronPort.setTenantID(tenantId);
+                    neutronPorts.add(neutronPort);
+                }
+            }
+        }
+        return neutronPorts;
     }
 
     @Override
@@ -63,9 +84,12 @@ public class MidoNetPortCRUD implements INeutronPortCRUD {
                      input.getTenantID(),
                      input.getNetworkUUID());
         PortDataClient dataClient = this.lookUpDataClient();
-        BridgePort bridgePort = new BridgePort();
-        bridgePort.setDeviceId(UUID.fromString(input.getNetworkUUID()));
-        UUID portId = dataClient.portsCreate(bridgePort);
+        UUID portId = null;
+        if (dataClient != null) {
+            BridgePort bridgePort = new BridgePort();
+            bridgePort.setDeviceId(UUID.fromString(input.getNetworkUUID()));
+            portId = dataClient.portsCreate(bridgePort);
+        }
         return portId != null;
     }
 
